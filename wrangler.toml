@@ -1,0 +1,7 @@
+name = "{{ project-name }}"
+type = "webpack"
+account_id = "fill-me-in"
+workers_dev = true
+route = ""
+zone_id = ""
+webpack_config = "webpack.config.js"
