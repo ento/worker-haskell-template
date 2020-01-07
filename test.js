@@ -19,34 +19,32 @@ test.beforeEach(t => {
     })
 });
 
-test('get: successful response', t => {
-  const req = new Cloudworker.Request(
-    'https://example.com/')
-  return t.context.cw.dispatch(req).then((res) => {
-    t.is(res.status, 200);
-    res.text().then((body) => {
-      t.is(body, 'Hello from Haskell');
-    })
-  })
+test('get: successful responses', async t => {
+  const getReq = () => new Cloudworker.Request('https://example.com/')
+  const res1 = await t.context.cw.dispatch(getReq());
+  t.is(res1.status, 200);
+  t.is(await res1.text(), 'Hello from Haskell')
+  const res2 = await t.context.cw.dispatch(getReq());
+  t.is(res2.status, 200);
+  t.is(await res2.text(), 'Hello from Haskell');
 });
 
-test('post: successful response', t => {
-  const req = new Cloudworker.Request(
+test('post: successful responses', async t => {
+  const postReq = (name) => new Cloudworker.Request(
     'https://example.com/',
-    {method: 'POST', body: '{"name": "cloudflare"}'})
-  return t.context.cw.dispatch(req).then((res) => {
-    t.is(res.status, 200);
-    res.text().then((body) => {
-      t.is(body, 'Hello cloudflare');
-    })
-  })
+    {method: "POST", body: JSON.stringify({name: name})});
+  const res1 = await t.context.cw.dispatch(postReq('cloudflare'));
+  t.is(res1.status, 200);
+  t.is(await res1.text(), 'Hello cloudflare');
+  const res2 = await t.context.cw.dispatch(postReq('asterius'));
+  t.is(res2.status, 200);
+  t.is(await res2.text(), 'Hello asterius');
 });
 
-test('post: missing name', t => {
+test("post: missing name", async t => {
   const req = new Cloudworker.Request(
     'https://example.com/',
-    {method: 'POST', body: '{"hello": "cloudflare"}'})
-  return t.context.cw.dispatch(req).then((res) => {
-    t.is(res.status, 400)
-  })
+    {method: "POST", body: '{"hello": "cloudflare"}'})
+  const res = await t.context.cw.dispatch(req);
+  t.is(res.status, 400);
 });
